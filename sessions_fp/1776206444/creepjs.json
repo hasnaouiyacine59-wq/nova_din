@@ -1,0 +1,21 @@
+{
+  "session_id": "1776206444",
+  "tor_ip": "185.220.101.7",
+  "fingerprint": {
+    "fp_id": null,
+    "headless%": null,
+    "stealth%": null,
+    "platform": null,
+    "cores_ram": null,
+    "webrtc_ip": null
+  },
+  "raw_summary": "FP ID: Computing...\nFuzzy: 0000000000000000000000000000000000000000000000000000000000000000\n0 ms",
+  "geo": {
+    "ip": "185.220.101.7",
+    "country": "Germany",
+    "cc": "DE",
+    "city": "Brandenburg",
+    "locale": "de-DE",
+    "timezone": "Europe/Berlin"
+  }
+}
