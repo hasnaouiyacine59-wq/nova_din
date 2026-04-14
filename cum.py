@@ -199,6 +199,49 @@ with Camoufox(
             human_click(el)
             page.wait_for_load_state('networkidle', timeout=20000)
             dump_iframe_ads()
+
+            # ── after Losers: click logo then 10 random currencies ──
+            if href == '/losers':
+                time.sleep(random.uniform(1.5, 3.0))
+
+                # click the CryptoScope home logo
+                logo = page.query_selector('a.text-accent.font-bold.text-lg.tracking-tight.shrink-0[href="/"]')
+                if logo:
+                    logo_text = (logo.inner_text() or '').strip()
+                    print(f"\n🖱️  Clicking '{logo_text}' (home logo)")
+                    human_click(logo)
+                    page.wait_for_load_state('networkidle', timeout=20000)
+                    dump_iframe_ads()
+                else:
+                    print("⚠️  CryptoScope logo not found")
+
+                time.sleep(random.uniform(1.5, 3.0))
+
+                # click 10 random currency rows/links
+                currency_links = page.query_selector_all('table tbody tr td a[href^="/currencies/"], a[href^="/coin/"], a[href^="/crypto/"]')
+                if not currency_links:
+                    # fallback: any link inside a table row
+                    currency_links = page.query_selector_all('table tbody tr a')
+                print(f"\n💰  Found {len(currency_links)} currency link(s), clicking 10 random ones...")
+                picks = random.sample(currency_links, min(10, len(currency_links)))
+                for coin in picks:
+                    time.sleep(random.uniform(1.5, 4.0))
+                    try:
+                        coin_name = (coin.inner_text() or '').strip()[:30]
+                        coin_href = coin.get_attribute('href') or ''
+                        print(f"   🪙  Clicking \033[93m'{coin_name}'\033[0m ({coin_href})")
+                        human_click(coin)
+                        page.wait_for_load_state('networkidle', timeout=20000)
+                        dump_iframe_ads()
+                        time.sleep(random.uniform(1.0, 2.5))
+                        page.go_back(wait_until='networkidle', timeout=20000)
+                        # re-query after back navigation
+                        currency_links = page.query_selector_all('table tbody tr td a[href^="/currencies/"], a[href^="/coin/"], a[href^="/crypto/"]')
+                        if not currency_links:
+                            currency_links = page.query_selector_all('table tbody tr a')
+                    except Exception as e:
+                        print(f"   ⚠️  coin click error: {e}")
+
         except Exception as e:
             print(f"⚠️  Click error on {href}: {e}")
 
