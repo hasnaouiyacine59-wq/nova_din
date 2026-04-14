@@ -1,4 +1,17 @@
 import os, json, time, random, requests
+
+VERSION = "v1.1.0"
+BANNER = f"""
+  ███╗   ██╗ ██████╗ ██╗   ██╗ █████╗     ██████╗ ██╗███╗   ██╗
+  ████╗  ██║██╔═══██╗██║   ██║██╔══██╗    ██╔══██╗██║████╗  ██║
+  ██╔██╗ ██║██║   ██║██║   ██║███████║    ██║  ██║██║██╔██╗ ██║
+  ██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║    ██║  ██║██║██║╚██╗██║
+  ██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║    ██████╔╝██║██║ ╚████║
+  ╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝   ╚═════╝ ╚═╝╚═╝  ╚═══╝
+                                                    {VERSION}
+"""
+print(BANNER)
+
 from camoufox.sync_api import Camoufox
 from camoufox.addons import DefaultAddons
 import creep_session
