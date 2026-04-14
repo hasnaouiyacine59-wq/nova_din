@@ -187,8 +187,8 @@ with Camoufox(
                         print(f"   📢 iframe-{i} ads:")
                         for alt in alts:
                             print(f"      • {alt}")
-                except Exception:
-                    pass
+                except Exception as e:
+                    print(f"   ⚠️  iframe-{i} read error: {e}")
         except Exception as e:
             print(f"⚠️  iframe read error: {e}")
 
@@ -260,6 +260,9 @@ with Camoufox(
                         print(f"   🪙  Clicking \033[93m'{coin_name}'\033[0m ({coin_href})")
                         human_click(coin)
                         page.wait_for_load_state('networkidle', timeout=20000)
+                        # wait a moment for iframes/ads to load
+                        time.sleep(random.uniform(1.5, 3.0))
+                        print(f"\n🖼️  Reading iframes on \033[93m{coin_name}\033[0m page...")
                         read_iframes()
                         time.sleep(random.uniform(1.0, 2.5))
                         page.go_back(wait_until='networkidle', timeout=20000)
