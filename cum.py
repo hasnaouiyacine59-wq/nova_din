@@ -141,11 +141,17 @@ with Camoufox(
             if cf:
                 cf.wait_for_load_state('domcontentloaded', timeout=15000)
                 elements = cf.query_selector_all('img')
-                print(f"\n📄  img alt tags inside iframe-0:")
+                seen = set()
+                unique_alts = []
                 for el in elements:
-                    alt = el.get_attribute('alt') or ''
-                    if alt:
-                        print(f"   alt={alt!r}")
+                    alt = (el.get_attribute('alt') or '').strip()
+                    if alt and alt not in seen:
+                        seen.add(alt)
+                        unique_alts.append(alt)
+                if unique_alts:
+                    print(f"\n📄  img alt tags inside iframe-0:")
+                    for alt in unique_alts:
+                        print(f"   • {alt}")
             else:
                 print("⚠️  Could not get content frame for iframe-0")
         except Exception as e:
@@ -153,35 +159,57 @@ with Camoufox(
     else:
         print("⚠️  No iframes found on page")
 
-    def dump_iframe_ads():
+    def read_iframes():
+        """Read and print text + unique ad alts from every iframe on the page."""
         try:
-            iframes = page.query_selector_all('iframe')
-            if not iframes:
+            frames = page.query_selector_all('iframe')
+            if not frames:
                 return
-            cf = iframes[0].content_frame()
-            if not cf:
-                return
-            cf.wait_for_load_state('domcontentloaded', timeout=10000)
-            imgs = cf.query_selector_all('img')
-            alts = [el.get_attribute('alt') for el in imgs if el.get_attribute('alt')]
-            if alts:
-                print(f"\n📢  Ads in iframe-0:")
-                for alt in alts:
-                    print(f"   alt={alt!r}")
+            for i, fr in enumerate(frames):
+                try:
+                    cf = fr.content_frame()
+                    if not cf:
+                        continue
+                    cf.wait_for_load_state('domcontentloaded', timeout=10000)
+                    body_text = cf.inner_text('body') if cf else ''
+                    short = body_text.strip()[:200].replace('\n', ' ')
+                    if short:
+                        print(f"   📄 iframe-{i} text: \033[37m{short}\033[0m")
+                    imgs = cf.query_selector_all('img')
+                    seen = set()
+                    alts = []
+                    for el in imgs:
+                        alt = (el.get_attribute('alt') or '').strip()
+                        if alt and alt not in seen:
+                            seen.add(alt)
+                            alts.append(alt)
+                    if alts:
+                        print(f"   📢 iframe-{i} ads:")
+                        for alt in alts:
+                            print(f"      • {alt}")
+                except Exception:
+                    pass
         except Exception as e:
-            print(f"⚠️  iframe ad dump error: {e}")
+            print(f"⚠️  iframe read error: {e}")
 
     def human_click(el):
         box = el.bounding_box()
         if not box:
             el.click()
             return
-        # move to a random point inside the element
-        x = box['x'] + box['width']  * random.uniform(0.3, 0.7)
-        y = box['y'] + box['height'] * random.uniform(0.3, 0.7)
-        page.mouse.move(x, y, steps=random.randint(10, 25))
-        time.sleep(random.uniform(0.1, 0.4))
-        page.mouse.click(x, y)
+        tx = box['x'] + box['width']  * random.uniform(0.3, 0.7)
+        ty = box['y'] + box['height'] * random.uniform(0.3, 0.7)
+        sx = tx + random.uniform(-120, 120)
+        sy = ty + random.uniform(-80, 80)
+        page.mouse.move(sx, sy, steps=random.randint(5, 12))
+        time.sleep(random.uniform(0.05, 0.15))
+        mx = (sx + tx) / 2 + random.uniform(-40, 40)
+        my = (sy + ty) / 2 + random.uniform(-40, 40)
+        page.mouse.move(mx, my, steps=random.randint(8, 18))
+        time.sleep(random.uniform(0.05, 0.12))
+        page.mouse.move(tx, ty, steps=random.randint(6, 14))
+        time.sleep(random.uniform(0.08, 0.25))
+        page.mouse.click(tx, ty)
 
     # ── nav links to randomly click ──
     NAV_HREFS = ['/', '/', '/gainers', '/losers', '/watchlist']
@@ -198,7 +226,7 @@ with Camoufox(
             print(f"\n🖱️  Clicking \033[92m'{text}'\033[0m href={href}")
             human_click(el)
             page.wait_for_load_state('networkidle', timeout=20000)
-            dump_iframe_ads()
+            read_iframes()
 
             # ── after Losers: click logo then 10 random currencies ──
             if href == '/losers':
@@ -211,7 +239,7 @@ with Camoufox(
                     print(f"\n🖱️  Clicking '{logo_text}' (home logo)")
                     human_click(logo)
                     page.wait_for_load_state('networkidle', timeout=20000)
-                    dump_iframe_ads()
+                    read_iframes()
                 else:
                     print("⚠️  CryptoScope logo not found")
 
@@ -232,7 +260,7 @@ with Camoufox(
                         print(f"   🪙  Clicking \033[93m'{coin_name}'\033[0m ({coin_href})")
                         human_click(coin)
                         page.wait_for_load_state('networkidle', timeout=20000)
-                        dump_iframe_ads()
+                        read_iframes()
                         time.sleep(random.uniform(1.0, 2.5))
                         page.go_back(wait_until='networkidle', timeout=20000)
                         # re-query after back navigation
