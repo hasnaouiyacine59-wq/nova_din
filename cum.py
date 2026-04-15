@@ -91,7 +91,6 @@ def get_approved_ip():
             print("[*] ⚠️  IP didn't change after reset, retrying reset...")
             ip = new_ip
 
-def get_ip_info(ip):
 CC_LANG = {
     'US': ('en-US', 'America/New_York'),
     'GB': ('en-GB', 'Europe/London'),
@@ -158,6 +157,18 @@ CC_LANG = {
 def get_ip_info(ip):
     try:
         d = requests.get(f'http://ipwho.is/{ip}', timeout=8).json()
+        cc = d.get('country_code', 'US')
+        locale, tz = CC_LANG.get(cc, ('en-US', 'America/New_York'))
+        return {
+            'ip':       ip,
+            'country':  d.get('country', '?'),
+            'cc':       cc,
+            'city':     d.get('city', '?'),
+            'locale':   locale,
+            'timezone': d.get('timezone', {}).get('id', tz),
+        }
+    except Exception:
+        return {'ip': ip, 'country': '?', 'cc': 'US', 'city': '?', 'locale': 'en-US', 'timezone': 'America/New_York'}
         cc = d.get('country_code', 'US')
         locale, tz = CC_LANG.get(cc, ('en-US', 'America/New_York'))
         return {
