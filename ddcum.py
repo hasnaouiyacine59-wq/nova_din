@@ -27,7 +27,7 @@ PROXY     = os.getenv('PROXY',     f'socks5://{TOR_HOST}:9050')
 IP_API    = os.getenv('IP_API',    f'http://{TOR_HOST}:5000/ip')
 RESET_API = os.getenv('RESET_API', f'http://{TOR_HOST}:5000/reset-ip')
 
-REPORT_URL = os.getenv('REPORT_URL', 'https://f-api-exb5.onrender.com/api/v1/status')
+REPORT_URL = os.getenv('REPORT_URL', '')  # set your endpoint here
 
 OS_PROFILES = [
     {'os': 'macos',   'window': (1440, 900)},
@@ -62,23 +62,23 @@ def set_exit_ip(country):
 CHECK_API = 'https://f-api-exb5.onrender.com/api/v1'
 
 def check_ip(ip):
-    """Return True if the API approves this IP. Returns (approved, response)."""
+    """Return True if the API approves this IP."""
     try:
         r = requests.get(f'{CHECK_API}/{ip}', timeout=10).json()
-        return r.get('used') != 'yes', r
+        print(f"[*] api response: {r}")
+        return r.get('used') != 'yes'
     except Exception:
-        return False, {}
+        return False
 
 def get_approved_ip():
     """Keep rotating Tor exit IPs until the check API approves one."""
     ip = requests.get(IP_API, timeout=10).json().get('ip', '0.0.0.0')
     while True:
         print(f"[*] testing {ip} ...")
-        approved, resp = check_ip(ip)
-        if approved:
-            print(f"[*] ✅ approved: {ip} → {resp}")
+        if check_ip(ip):
+            print(f"[*] ✅ approved: {ip}")
             return ip
-        print(f"[*] ❌ rejected: {ip} → {resp}, resetting...")
+        print(f"[*] ❌ rejected: {ip}, resetting...")
         reset_ip()
         # wait until Tor actually gives a different IP
         for _ in range(20):
@@ -127,9 +127,8 @@ print("[*] Waiting for new IP...")
 if args.c:
     pinned_ip = set_exit_ip(args.c)
     raw_ip = pinned_ip or requests.get(IP_API, timeout=10).json().get('ip', '0.0.0.0')
-    approved, resp = check_ip(raw_ip)
-    if not approved:
-        print(f"[*] ❌ pinned IP {raw_ip} rejected → {resp}, falling back to rotation...")
+    if not check_ip(raw_ip):
+        print(f"[*] ❌ pinned IP {raw_ip} rejected, falling back to rotation...")
         raw_ip = get_approved_ip()
 else:
     raw_ip = get_approved_ip()
@@ -146,7 +145,6 @@ session_report = {
     'timezone': geo['timezone'],
     'os':       profile['os'],
     'window':   list(profile['window']),
-    'titles':   [],
     'iframes':  [],
 }
 
@@ -210,13 +208,10 @@ with Camoufox(
     if iframes:
         fr = iframes[0]
         print(f"\n🔍  Title :")
-        iframe0_attrs = []
         for attr in ('src', 'id', 'name', 'alt', 'title', 'class'):
             val = fr.get_attribute(attr)
             if val:
                 print(f"   {val}")
-                iframe0_attrs.append(val)
-        session_report['iframe0_attrs'] = iframe0_attrs
         try:
             cf = fr.content_frame()
             if cf:
@@ -233,7 +228,6 @@ with Camoufox(
                     print(f"\n📄  title :")
                     for alt in unique_alts:
                         print(f"   • {alt}")
-                session_report['iframe0_alts'] = unique_alts
             else:
                 print("⚠️  Could not get content frame for iframe-0")
         except Exception as e:
@@ -266,8 +260,9 @@ with Camoufox(
                             seen.add(alt)
                             alts.append(alt)
                     if alts:
-                        print(f"   📢 title-{i} : {' • '.join(alts)}")
-                        session_report['titles'].extend(alts)
+                        print(f"   📢 title-{i} :")
+                        for alt in alts:
+                            print(f"      • {alt}")
                 except Exception as e:
                     print(f"   ⚠️  iframe-{i} read error: {e}")
         except Exception as e:
@@ -406,6 +401,7 @@ with Camoufox(
                         pass
                     time.sleep(1)
 
+                input('')
             except Exception as e:
                 print(f"   ⚠️  iframe-{i} error: {e}")
 
