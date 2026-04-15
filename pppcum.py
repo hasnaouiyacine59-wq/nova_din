@@ -92,74 +92,11 @@ def get_approved_ip():
             ip = new_ip
 
 def get_ip_info(ip):
-CC_LANG = {
-    'US': ('en-US', 'America/New_York'),
-    'GB': ('en-GB', 'Europe/London'),
-    'DE': ('de-DE', 'Europe/Berlin'),
-    'FR': ('fr-FR', 'Europe/Paris'),
-    'NL': ('nl-NL', 'Europe/Amsterdam'),
-    'ES': ('es-ES', 'Europe/Madrid'),
-    'IT': ('it-IT', 'Europe/Rome'),
-    'PL': ('pl-PL', 'Europe/Warsaw'),
-    'SE': ('sv-SE', 'Europe/Stockholm'),
-    'NO': ('nb-NO', 'Europe/Oslo'),
-    'FI': ('fi-FI', 'Europe/Helsinki'),
-    'RO': ('ro-RO', 'Europe/Bucharest'),
-    'CZ': ('cs-CZ', 'Europe/Prague'),
-    'AT': ('de-AT', 'Europe/Vienna'),
-    'CH': ('de-CH', 'Europe/Zurich'),
-    'CA': ('en-CA', 'America/Toronto'),
-    'AU': ('en-AU', 'Australia/Sydney'),
-    'JP': ('ja-JP', 'Asia/Tokyo'),
-    'BR': ('pt-BR', 'America/Sao_Paulo'),
-    'IN': ('en-IN', 'Asia/Kolkata'),
-    'PT': ('pt-PT', 'Europe/Lisbon'),
-    'BE': ('nl-BE', 'Europe/Brussels'),
-    'DK': ('da-DK', 'Europe/Copenhagen'),
-    'HU': ('hu-HU', 'Europe/Budapest'),
-    'SK': ('sk-SK', 'Europe/Bratislava'),
-    'HR': ('hr-HR', 'Europe/Zagreb'),
-    'BG': ('bg-BG', 'Europe/Sofia'),
-    'GR': ('el-GR', 'Europe/Athens'),
-    'TR': ('tr-TR', 'Europe/Istanbul'),
-    'RU': ('ru-RU', 'Europe/Moscow'),
-    'UA': ('uk-UA', 'Europe/Kiev'),
-    'LT': ('lt-LT', 'Europe/Vilnius'),
-    'LV': ('lv-LV', 'Europe/Riga'),
-    'EE': ('et-EE', 'Europe/Tallinn'),
-    'RS': ('sr-RS', 'Europe/Belgrade'),
-    'SI': ('sl-SI', 'Europe/Ljubljana'),
-    'MX': ('es-MX', 'America/Mexico_City'),
-    'AR': ('es-AR', 'America/Argentina/Buenos_Aires'),
-    'CL': ('es-CL', 'America/Santiago'),
-    'CO': ('es-CO', 'America/Bogota'),
-    'PE': ('es-PE', 'America/Lima'),
-    'ZA': ('en-ZA', 'Africa/Johannesburg'),
-    'NG': ('en-NG', 'Africa/Lagos'),
-    'EG': ('ar-EG', 'Africa/Cairo'),
-    'SA': ('ar-SA', 'Asia/Riyadh'),
-    'AE': ('ar-AE', 'Asia/Dubai'),
-    'IL': ('he-IL', 'Asia/Jerusalem'),
-    'KR': ('ko-KR', 'Asia/Seoul'),
-    'CN': ('zh-CN', 'Asia/Shanghai'),
-    'TW': ('zh-TW', 'Asia/Taipei'),
-    'HK': ('zh-HK', 'Asia/Hong_Kong'),
-    'SG': ('en-SG', 'Asia/Singapore'),
-    'MY': ('ms-MY', 'Asia/Kuala_Lumpur'),
-    'TH': ('th-TH', 'Asia/Bangkok'),
-    'ID': ('id-ID', 'Asia/Jakarta'),
-    'PH': ('en-PH', 'Asia/Manila'),
-    'VN': ('vi-VN', 'Asia/Ho_Chi_Minh'),
-    'PK': ('ur-PK', 'Asia/Karachi'),
-    'BD': ('bn-BD', 'Asia/Dhaka'),
-    'NZ': ('en-NZ', 'Pacific/Auckland'),
-}
-
-def get_ip_info(ip):
     try:
         d = requests.get(f'http://ipwho.is/{ip}', timeout=8).json()
         cc = d.get('country_code', 'US')
-        locale, tz = CC_LANG.get(cc, ('en-US', 'America/New_York'))
+        # locale, tz = creep_session.CC_LANG.get(cc, ('en-US', 'America/New_York'))
+        locale, tz = ('en-US', 'America/New_York')
         return {
             'ip':       ip,
             'country':  d.get('country', '?'),
