@@ -1,4 +1,4 @@
-import os, json, time, random, requests
+import os, json, time, random, requests, argparse
 
 VERSION = "v1.1.0"
 BANNER = f"""
@@ -11,6 +11,10 @@ BANNER = f"""
                                                     {VERSION}
 """
 print(BANNER)
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-c', metavar='COUNTRY', help='Use /ip/<country> endpoint and set exit IP (e.g. -c sw)')
+args = parser.parse_args()
 
 from camoufox.sync_api import Camoufox
 from camoufox.addons import DefaultAddons
@@ -36,6 +40,21 @@ def reset_ip():
         requests.get(RESET_API, timeout=10)
     except Exception:
         pass
+
+def set_exit_ip(country):
+    """Call /ip/<country>, then /set-exit-ip/<ip> to pin the exit node."""
+    try:
+        r = requests.get(f'http://{TOR_HOST}:5000/ip/{country}', timeout=10).json()
+        ip = r.get('ip')
+        if not ip:
+            print(f"[!] No IP returned for country '{country}'")
+            return None
+        resp = requests.get(f'http://{TOR_HOST}:5000/set-exit-ip/{ip}', timeout=10).json()
+        print(f"[exit-ip] {ip} [{country}] → {resp.get('status')} fp={resp.get('fingerprint','?')}")
+        return ip
+    except Exception as e:
+        print(f"[!] set_exit_ip error: {e}")
+        return None
 
 def get_ip_info(ip):
     try:
@@ -65,9 +84,14 @@ for _ in range(30):
 else:
     print("[!] Tor not ready after 60s, continuing anyway...")
 
-reset_ip()
-time.sleep(3)
-raw_ip  = creep_session.get_ip(IP_API)
+if args.c:
+    pinned_ip = set_exit_ip(args.c)
+    raw_ip = pinned_ip or creep_session.get_ip(IP_API)
+else:
+    reset_ip()
+    time.sleep(3)
+    raw_ip = creep_session.get_ip(IP_API)
+
 geo     = get_ip_info(raw_ip)
 profile = random.choice(OS_PROFILES)
 
