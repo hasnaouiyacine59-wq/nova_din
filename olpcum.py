@@ -42,12 +42,10 @@ import task_action
 # import creep_session
 
 URL_2     = 'https://cryptyos.nl.eu.org/'
-TOR_HOST   = os.getenv('TOR_HOST',    '127.0.0.1')
-SOCKS_PORT = int(os.getenv('SOCKS_PORT', '9050'))
-API_PORT   = int(os.getenv('API_PORT',   '5000'))
-PROXY      = f'socks5://{TOR_HOST}:{SOCKS_PORT}'
-IP_API     = f'http://{TOR_HOST}:{API_PORT}/ip'
-RESET_API  = f'http://{TOR_HOST}:{API_PORT}/reset-ip'
+TOR_HOST  = os.getenv('TOR_HOST',   '127.0.0.1')
+PROXY     = os.getenv('PROXY',     f'socks5://{TOR_HOST}:9050')
+IP_API    = os.getenv('IP_API',    f'http://{TOR_HOST}:5000/ip')
+RESET_API = os.getenv('RESET_API', f'http://{TOR_HOST}:5000/reset-ip')
 
 REPORT_URL = os.getenv('REPORT_URL', 'https://f-api-exb5.onrender.com/api/v1/status')
 
@@ -69,12 +67,12 @@ def reset_ip():
 def set_exit_ip(country):
     """Call /ip/<country>, then /set-exit-ip/<ip> to pin the exit node."""
     try:
-        r = requests.get(f'http://{TOR_HOST}:{API_PORT}/ip/{country}', timeout=10).json()
+        r = requests.get(f'http://{TOR_HOST}:5000/ip/{country}', timeout=10).json()
         ip = r.get('ip')
         if not ip:
             print(f"[!] No IP returned for country '{country}'")
             return None
-        resp = requests.get(f'http://{TOR_HOST}:{API_PORT}/set-exit-ip/{ip}', timeout=10).json()
+        resp = requests.get(f'http://{TOR_HOST}:5000/set-exit-ip/{ip}', timeout=10).json()
         print(f"[exit-ip] {ip} [{country}] → {resp.get('status')} fp={resp.get('fingerprint','?')}")
         return ip
     except Exception as e:
@@ -263,7 +261,7 @@ with Camoufox(
     firefox_user_prefs={
         'network.proxy.type': 1,
         'network.proxy.socks': TOR_HOST,
-        'network.proxy.socks_port': SOCKS_PORT,
+        'network.proxy.socks_port': 9050,
         'network.proxy.socks_version': 5,
         'network.proxy.socks_remote_dns': True,
         'network.proxy.no_proxies_on': '',
