@@ -1,7 +1,7 @@
 import os, json, time, random, requests, argparse, platform, uuid, socket
 os.environ['CAMOUFOX_NO_UPDATE'] = '1'
 
-VERSION = "v2.1.0"
+VERSION = "v3.0.1"
 BANNER = f"""
   ███╗   ██╗ ██████╗ ██╗   ██╗ █████╗     ██████╗ ██╗███╗   ██╗
   ████╗  ██║██╔═══██╗██║   ██║██╔══██╗    ██╔══██╗██║████╗  ██║
@@ -91,9 +91,19 @@ def check_ip(ip):
     except Exception:
         return False, {}
 
+def _fetch_ip(retries=12, delay=5):
+    """Fetch current Tor exit IP, retrying on timeout until the API is ready."""
+    for attempt in range(retries):
+        try:
+            return requests.get(IP_API, timeout=10).json().get('ip', '0.0.0.0')
+        except Exception as e:
+            print(f"[*] IP API not ready ({e}), retrying in {delay}s... ({attempt+1}/{retries})")
+            time.sleep(delay)
+    raise RuntimeError(f"IP API unreachable after {retries} attempts")
+
 def get_approved_ip():
     """Keep rotating Tor exit IPs until the check API approves one."""
-    ip = requests.get(IP_API, timeout=10).json().get('ip', '0.0.0.0')
+    ip = _fetch_ip()
     while True:
         print(f"[*] testing {ip} ...")
         approved, resp = check_ip(ip)
@@ -105,7 +115,7 @@ def get_approved_ip():
         # wait until Tor actually gives a different IP
         for _ in range(20):
             time.sleep(3)
-            new_ip = requests.get(IP_API, timeout=10).json().get('ip', '0.0.0.0')
+            new_ip = _fetch_ip()
             if new_ip != ip:
                 ip = new_ip
                 break
