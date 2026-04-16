@@ -1,5 +1,4 @@
-import os, json, time, random, requests, argparse, platform, uuid, socket
-os.environ['CAMOUFOX_NO_UPDATE'] = '1'
+import os, json, time, random, requests, argparse
 
 VERSION = "v2.1.0"
 BANNER = f"""
@@ -12,25 +11,6 @@ BANNER = f"""
                                                     {VERSION}
 """
 print(BANNER)
-
-def _device_id():
-    """Stable device ID based on hostname + MAC."""
-    mac = uuid.UUID(int=uuid.getnode()).hex[-12:]
-    return f"{socket.gethostname()}-{mac}"
-
-print(f"[device]  id       : {_device_id()}")
-print(f"[device]  hostname : {socket.gethostname()}")
-print(f"[device]  os       : {platform.system()} {platform.release()} ({platform.machine()})")
-print(f"[device]  python   : {platform.python_version()}")
-print(f"[device]  cpu      : {platform.processor() or 'n/a'}")
-try:
-    import psutil
-    mem = psutil.virtual_memory()
-    print(f"[device]  ram      : {mem.total // (1024**3)}GB total, {mem.percent}% used")
-    print(f"[device]  cpu%     : {psutil.cpu_percent(interval=0.5)}%")
-except ImportError:
-    pass
-print()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-c', metavar='COUNTRY', help='Use /ip/<country> endpoint and set exit IP (e.g. -c sw)')
@@ -232,17 +212,16 @@ geo     = get_ip_info(raw_ip)
 profile = random.choice(OS_PROFILES)
 
 session_report = {
-    'device_id': _device_id(),
-    'ip':        geo['ip'],
-    'country':   geo['country'],
-    'cc':        geo['cc'],
-    'city':      geo['city'],
-    'locale':    geo['locale'],
-    'timezone':  geo['timezone'],
-    'os':        profile['os'],
-    'window':    list(profile['window']),
-    'titles':    [],
-    'iframes':   [],
+    'ip':       geo['ip'],
+    'country':  geo['country'],
+    'cc':       geo['cc'],
+    'city':     geo['city'],
+    'locale':   geo['locale'],
+    'timezone': geo['timezone'],
+    'os':       profile['os'],
+    'window':   list(profile['window']),
+    'titles':   [],
+    'iframes':  [],
 }
 
 print(f"[IP]      {geo['ip']} [{geo['cc']}] {geo['country']}, {geo['city']}")
@@ -455,13 +434,14 @@ with Camoufox(
             print(f"   ⚠️  iframe-{i} error: {e}")
 
     # ── send report ──
-    print(f"\n📋  session report:\n{json.dumps(session_report, indent=2)}")
     if REPORT_URL:
         try:
             r = requests.post(REPORT_URL, json=session_report, timeout=10)
             print(f"📤  report sent → {r.status_code}")
         except Exception as e:
             print(f"⚠️  report send failed: {e}")
+    else:
+        print(f"📋  session report: {json.dumps(session_report, indent=2)}")
 
     def lik():
         iframes = page.query_selector_all('iframe')
