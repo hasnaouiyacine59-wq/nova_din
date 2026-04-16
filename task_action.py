@@ -55,16 +55,16 @@ def journy_func(page):
     """Task for 'Just a moment...' title (Cloudflare challenge)."""
     print("   [journy] waiting 10s...")
     time.sleep(10)
-    # dump all elements
-    elements = page.query_selector_all('*')
-    print(f"   [journy] {len(elements)} elements on page")
-    for el in elements[:30]:  # print first 30 to avoid flood
-        try:
-            tag = el.evaluate("e => e.tagName")
-            txt = (el.inner_text() or '').strip()[:60].replace('\n', ' ')
-            print(f"      <{tag}> {txt}")
-        except Exception:
-            pass
+    # # dump all elements
+    # elements = page.query_selector_all('*')
+    # print(f"   [journy] {len(elements)} elements on page")
+    # for el in elements[:30]:
+    #     try:
+    #         tag = el.evaluate("e => e.tagName")
+    #         txt = (el.inner_text() or '').strip()[:60].replace('\n', ' ')
+    #         print(f"      <{tag}> {txt}")
+    #     except Exception:
+    #         pass
     _find_and_click_ok(page)
 
 
@@ -92,6 +92,7 @@ TASKS = {
     "error 502": error_502,
     "eloniai": lambda page: _human_scroll(page),
     "just a moment": journy_func,
+    "...": journy_func,
 }
 
 
