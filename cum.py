@@ -67,6 +67,7 @@ OS_FONTS = {
 }
 
 
+def reset_ip():
     try:
         requests.get(RESET_API, timeout=10)
     except Exception:
@@ -207,17 +208,6 @@ def get_ip_info(ip):
         }
     except Exception:
         return {'ip': ip, 'country': '?', 'cc': 'US', 'city': '?', 'locale': 'en-US', 'timezone': 'America/New_York'}
-        cc = d.get('country_code', 'US')
-        locale, tz = CC_LANG.get(cc, ('en-US', 'America/New_York'))
-        return {
-            'ip':       ip,
-            'country':  d.get('country', '?'),
-            'cc':       cc,
-            'city':     d.get('city', '?'),
-            'locale':   locale,
-            'timezone': d.get('timezone', {}).get('id', tz),
-        }
-    except Exception:
         return {'ip': ip, 'country': '?', 'cc': 'US', 'city': '?', 'locale': 'en-US', 'timezone': 'America/New_York'}
 
 # ── rotate IP + resolve geo ──
