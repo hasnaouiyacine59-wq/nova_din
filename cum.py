@@ -265,10 +265,8 @@ with Camoufox(
     headless=False,
     os=profile['os'],
     window=profile['window'],
-    block_images=False,
-    geoip=True,
+    geoip=geo['ip'],
     exclude_addons=[DefaultAddons.UBO],
-    locale=geo['locale'],
     i_know_what_im_doing=True,
     firefox_user_prefs={
         'network.proxy.type': 1,
@@ -280,7 +278,7 @@ with Camoufox(
         'network.dns.disablePrefetch': True,
     },
 ) as browser:
-    page = browser.new_page(timezone_id=geo['timezone'])
+    page = browser.new_page()
 
     # ── creep_session capture (commented out) ──
     # report = creep_session.capture(page, tor_ip=geo['ip'])
@@ -413,11 +411,40 @@ with Camoufox(
             text = (el.inner_text() or '').strip()[:40]
             print(f"\n🖱️  Clicking \033[92m'{text}'\033[0m href={href}")
             human_click(el)
-            page.wait_for_load_state('networkidle', timeout=20000)
+            try:
+                page.wait_for_load_state('networkidle', timeout=10000)
+            except Exception:
+                page.wait_for_load_state('domcontentloaded', timeout=10000)
             read_iframes()
 
-            # ── after Losers: click logo then 10 random currencies ──
+            # ── after Gainers: click a random pair link ──
+            if href == '/gainers':
+                time.sleep(random.uniform(1.5, 3.0))
+                pair_links = page.query_selector_all('a[href^="/pair/"]')
+                if pair_links:
+                    pick = random.choice(pair_links)
+                    pair_text = (pick.inner_text() or '').strip()[:40].replace('\n', ' ')
+                    print(f"\n🖱️  Clicking pair \033[92m'{pair_text}'\033[0m")
+                    human_click(pick)
+                    page.wait_for_load_state('networkidle', timeout=20000)
+                    read_iframes()
+                else:
+                    print("⚠️  No pair links found on /gainers")
+
+            # ── after Losers: click random pair, then logo ──
             if href == '/losers':
+                time.sleep(random.uniform(1.5, 3.0))
+                pair_links = page.query_selector_all('a[href^="/pair/"]')
+                if pair_links:
+                    pick = random.choice(pair_links)
+                    pair_text = (pick.inner_text() or '').strip()[:40].replace('\n', ' ')
+                    print(f"\n🖱️  Clicking pair \033[92m'{pair_text}'\033[0m")
+                    human_click(pick)
+                    page.wait_for_load_state('networkidle', timeout=20000)
+                    read_iframes()
+                else:
+                    print("⚠️  No pair links found on /losers")
+
                 time.sleep(random.uniform(1.5, 3.0))
 
                 # click the CryptoScope home logo
