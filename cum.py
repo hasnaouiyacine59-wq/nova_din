@@ -60,7 +60,13 @@ OS_PROFILES = [
     {'os': 'linux',   'window': (1280, 800)},
 ]
 
-def reset_ip():
+OS_FONTS = {
+    'windows': ['Arial', 'Times New Roman', 'Georgia', 'Verdana', 'Trebuchet MS', 'Comic Sans MS', 'Impact', 'Courier New'],
+    'macos':   ['Helvetica', 'Geneva', 'Monaco', 'Optima', 'Futura', 'Arial', 'Times New Roman', 'Courier New'],
+    'linux':   ['DejaVu Sans', 'Liberation Sans', 'Ubuntu', 'FreeSans', 'Arial', 'Times New Roman'],
+}
+
+
     try:
         requests.get(RESET_API, timeout=10)
     except Exception:
@@ -266,6 +272,9 @@ with Camoufox(
     os=profile['os'],
     window=profile['window'],
     geoip=geo['ip'],
+    block_webrtc=True,
+    fonts=OS_FONTS.get(profile['os'], []),
+    config={'navigator.hardwareConcurrency': random.choice([4, 8, 12, 16])},
     exclude_addons=[DefaultAddons.UBO],
     i_know_what_im_doing=True,
     firefox_user_prefs={
