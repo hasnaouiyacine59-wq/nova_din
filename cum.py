@@ -1,7 +1,7 @@
 import os, json, time, random, requests, argparse, platform, uuid, socket
 os.environ['CAMOUFOX_NO_UPDATE'] = '1'
 
-VERSION = "v4.0.1"
+VERSION = "v4.0.2"
 BANNER = f"""
   ███╗   ██╗ ██████╗ ██╗   ██╗ █████╗     ██████╗ ██╗███╗   ██╗
   ████╗  ██║██╔═══██╗██║   ██║██╔══██╗    ██╔══██╗██║████╗  ██║
