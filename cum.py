@@ -266,7 +266,7 @@ with Camoufox(
     os=profile['os'],
     window=profile['window'],
     block_images=False,
-    geoip=False,
+    geoip=True,
     exclude_addons=[DefaultAddons.UBO],
     locale=geo['locale'],
     i_know_what_im_doing=True,
