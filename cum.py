@@ -39,6 +39,17 @@ args = parser.parse_args()
 from camoufox.sync_api import Camoufox
 from camoufox.addons import DefaultAddons
 import task_action
+from user_agnt import user_agent_list as _ua_pool
+
+_UA_FILTERS = {
+    'windows': lambda ua: 'Windows NT' in ua and 'Android' not in ua,
+    'macos':   lambda ua: 'Macintosh' in ua or 'Mac OS X' in ua,
+    'linux':   lambda ua: ('X11' in ua or 'Linux' in ua) and 'Android' not in ua and 'Macintosh' not in ua,
+}
+USER_AGENTS = {
+    os_key: [ua for ua in _ua_pool if fn(ua)] or _ua_pool
+    for os_key, fn in _UA_FILTERS.items()
+}
 # import creep_session
 
 URL_2     = 'https://cryptyos.nl.eu.org/'
@@ -275,6 +286,7 @@ with Camoufox(
         'network.proxy.socks_remote_dns': True,
         'network.proxy.no_proxies_on': '',
         'network.dns.disablePrefetch': True,
+        'general.useragent.override': random.choice(USER_AGENTS[profile['os']]),
     },
 ) as browser:
     page = browser.new_page()
