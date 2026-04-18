@@ -302,16 +302,12 @@ with Camoufox(
     #     json.dump(saved, f, indent=2)
     # print(f"[geo] saved to session {report['session_id']}")
 
-    # ── visit URL_3 in a new tab first ──
-    print(f"\n🌐  Opening {URL_3} in new tab...")
-    new_tab = browser.new_page()
-    new_tab.goto(URL_3, wait_until='networkidle', timeout=60000)
-    new_tab.bring_to_front()
-    print(f"✅  Page loaded: \033[96m{new_tab.title()}\033[0m  ({new_tab.url})")
+    # ── visit URL_3 first, then switch to URL_2 in the same tab ──
+    print(f"\n🌐  Navigating to {URL_3} ...")
+    page.goto(URL_3, wait_until='networkidle', timeout=60000)
+    print(f"✅  Page loaded: \033[96m{page.title()}\033[0m  ({page.url})")
     print("⏳  Waiting 10 seconds...")
     time.sleep(10)
-    print("👋  Closing URL_3 tab.")
-    new_tab.close()
 
     # ── load URL_2 and analyse ──
     print(f"\n🌐  Navigating to {URL_2} ...")
