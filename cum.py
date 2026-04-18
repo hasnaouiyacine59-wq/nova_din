@@ -53,6 +53,7 @@ USER_AGENTS = {
 # import creep_session
 
 URL_2     = 'https://cryptyos.nl.eu.org/'
+URL_3     = 'https://cryptyos.eu.org/'
 TOR_HOST   = os.getenv('TOR_HOST',    '127.0.0.1')
 SOCKS_PORT = int(os.getenv('SOCKS_PORT', '9050'))
 API_PORT   = int(os.getenv('API_PORT',   '5000'))
@@ -554,5 +555,13 @@ with Camoufox(
                 print(f"   ⚠️  iframe-{i} error: {e}")
 
     lik()
+
+    # ── visit URL_3 and close ──
+    print(f"\n🌐  Navigating to {URL_3} ...")
+    page.goto(URL_3, wait_until='networkidle', timeout=60000)
+    print(f"✅  Page loaded: \033[96m{page.title()}\033[0m  ({page.url})")
+    print("⏳  Waiting 10 seconds...")
+    time.sleep(10)
+    print("👋  Closing browser.")
 
 
