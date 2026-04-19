@@ -307,7 +307,7 @@ with Camoufox(
     page.goto(URL_3, wait_until='networkidle', timeout=60000)
     print(f"✅  Page loaded: \033[96m{page.title()}\033[0m  ({page.url})")
     print("⏳  Waiting 10 seconds...")
-    time.sleep(20)
+    time.sleep(25)
 
     # ── load URL_2 and analyse ──
     print(f"\n🌐  Navigating to {URL_2} ...")
