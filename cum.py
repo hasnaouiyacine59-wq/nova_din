@@ -307,7 +307,21 @@ with Camoufox(
     page.goto(URL_3, wait_until='networkidle', timeout=60000)
     print(f"✅  Page loaded: \033[96m{page.title()}\033[0m  ({page.url})")
     print("⏳  Waiting 10 seconds...")
-    time.sleep(25)
+    time.sleep(30)
+
+    # hover on iframe while waiting remaining 20 seconds
+    try:
+        iframe_el = page.query_selector('iframe')
+        if iframe_el:
+            box = iframe_el.bounding_box()
+            if box:
+                tx = box['x'] + box['width']  * random.uniform(0.3, 0.7)
+                ty = box['y'] + box['height'] * random.uniform(0.3, 0.7)
+                page.mouse.move(tx, ty, steps=random.randint(8, 15))
+                print("   🖱️  hovering iframe during wait...")
+    except Exception as e:
+        print(f"   ⚠️  iframe hover error: {e}")
+    time.sleep(20)
 
     # ── load URL_2 and analyse ──
     print(f"\n🌐  Navigating to {URL_2} ...")
