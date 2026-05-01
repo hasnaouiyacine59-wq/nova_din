@@ -3,24 +3,23 @@ import time, random, os, cv2, numpy as np
 
 def _human_scroll(page):
     """Scroll down to bottom then back up like a human."""
-    # get total page height
-    total_height = page.evaluate("document.body.scrollHeight")
-    current = 0
-    # scroll down in chunks until bottom
-    while current < total_height:
-        step = random.randint(200, 500)
-        page.evaluate(f"window.scrollBy(0, {step})")
-        current += step
-        time.sleep(random.uniform(0.3, 0.9))
-        # re-check height in case page loaded more content
+    try:
         total_height = page.evaluate("document.body.scrollHeight")
-    time.sleep(random.uniform(0.8, 1.5))
-    # scroll back up in chunks
-    while current > 0:
-        step = random.randint(150, 400)
-        page.evaluate(f"window.scrollBy(0, -{step})")
-        current -= step
-        time.sleep(random.uniform(0.2, 0.6))
+        current = 0
+        while current < total_height:
+            step = random.randint(200, 500)
+            page.evaluate(f"window.scrollBy(0, {step})")
+            current += step
+            time.sleep(random.uniform(0.3, 0.9))
+            total_height = page.evaluate("document.body.scrollHeight")
+        time.sleep(random.uniform(0.8, 1.5))
+        while current > 0:
+            step = random.randint(150, 400)
+            page.evaluate(f"window.scrollBy(0, -{step})")
+            current -= step
+            time.sleep(random.uniform(0.2, 0.6))
+    except Exception as e:
+        print(f"   [scroll] ⚠️  scroll error: {e}")
 
 
 TEMPLATE_OK = os.path.join(os.path.dirname(__file__), 'src', 'ok.png')
@@ -34,8 +33,12 @@ def _find_and_click_ok(page, timeout=30):
     th, tw = template.shape[:2]
     deadline = time.time() + timeout
     while time.time() < deadline:
-        # screenshot as numpy array
-        png = page.screenshot()
+        try:
+            png = page.screenshot()
+        except Exception as e:
+            print(f"   [journy] ⚠️  screenshot error: {e}")
+            time.sleep(1)
+            continue
         arr = np.frombuffer(png, np.uint8)
         screen = cv2.imdecode(arr, cv2.IMREAD_COLOR)
         result = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
@@ -44,7 +47,10 @@ def _find_and_click_ok(page, timeout=30):
             cx = max_loc[0] + tw // 2
             cy = max_loc[1] + th // 2
             print(f"   [journy] ✅ ok.png found (conf={max_val:.2f}) clicking ({cx},{cy})")
-            page.mouse.click(cx, cy)
+            try:
+                page.mouse.click(cx, cy)
+            except Exception as e:
+                print(f"   [journy] ⚠️  click failed: {e}")
             return True
         time.sleep(1)
     print("   [journy] ⚠️  ok.png not matched within timeout")
@@ -77,7 +83,6 @@ def error_502(page):
         _human_scroll(page)
     except Exception as e:
         print(f"   [task] 502 reload failed: {e}")
-
 
 def statewins(page):
     """Task for Statewins title."""
