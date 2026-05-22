@@ -153,7 +153,7 @@ def set_exit_ip(country):
         return None
 
 # Remote API used to check whether an IP has already been used
-CHECK_API = 'https://f-api-exb5.onrender.com/api/v1'
+CHECK_API = 'https://f-api-s36l.onrender.com/api/v1'
 
 def check_ip(ip):
     """Query the check API to see if this IP is approved (not previously used).
