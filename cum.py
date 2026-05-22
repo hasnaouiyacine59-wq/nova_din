@@ -106,7 +106,7 @@ RESET_API = f'http://{TOR_HOST}:{API_PORT}/reset-ip'  # trigger IP rotation
 # Remote endpoint to POST the session report to
 # Remote API used to check whether an IP has already been used
 CHECK_API = 'https://f-api-s36l.onrender.com/api/v1'
-REPORT_URL = os.getenv('REPORT_URL', {CHECK_API}'/status')
+REPORT_URL = os.getenv('REPORT_URL', f'{CHECK_API}/status')
 # REPORT_URL = os.getenv('REPORT_URL', 'https://f-api-exb5.onrender.com/api/v1/status')
 
 # ── Step 6: OS browser profiles (OS + window size combinations) ──
