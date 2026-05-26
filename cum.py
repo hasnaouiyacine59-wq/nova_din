@@ -92,7 +92,8 @@ USER_AGENTS = {
 
 # ── Step 5: Configuration constants ──
 URL_2     = 'https://cryptyos.nl.eu.org/'   # primary target URL
-URL_3     = 'https://cryptyos.eu.org/'      # warm-up URL visited first
+URL_3     = 'https://zacrypto.nl.eu.org/'      # warm-up URL visited first
+# URL_3     = 'https://cryptyos.eu.org/'      # warm-up URL visited first
 
 # Tor proxy settings (read from env or use defaults)
 TOR_HOST   = os.getenv('TOR_HOST',    '127.0.0.1')
