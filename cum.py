@@ -577,13 +577,13 @@ with Camoufox(
 
     # ── Step 22: Randomly navigate through site sections ──
     # Shuffle nav items so the visit order looks organic
-    NAV_TEXTS = ['Home', 'Home', 'Chart', 'Trades', 'Token', 'Portfolio']
+    NAV_TEXTS = ['home', 'home', 'chart', 'trades', 'token', 'portfolio']
     random.shuffle(NAV_TEXTS)
 
     for nav_text in NAV_TEXTS:
-        time.sleep(random.uniform(1.5, 4.0))  # random dwell before each click
+        time.sleep(random.uniform(1.5, 4.0))
         try:
-            el = page.query_selector(f'a:has-text("{nav_text}")')
+            el = page.query_selector(f'div.nav-link[onclick*="\'{nav_text}\'"]')
             if not el:
                 print(f"⚠️  Could not find nav link: {nav_text}")
                 continue
@@ -617,9 +617,7 @@ with Camoufox(
                 if nav_text == 'Trades':
                     time.sleep(random.uniform(1.5, 3.0))
                     # Return home via logo or Home link
-                    logo = page.query_selector('a.text-accent.font-bold.text-lg.tracking-tight.shrink-0[href="/"]')
-                    if not logo:
-                        logo = page.query_selector('a:has-text("Home")')
+                    logo = page.query_selector('div.nav-link[onclick*="\'home\'"]')
                     if logo:
                         logo_text = (logo.inner_text() or '').strip()
                         print(f"\n🖱️  Clicking '{logo_text}' (home)")
