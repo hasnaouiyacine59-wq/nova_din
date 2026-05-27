@@ -91,7 +91,7 @@ USER_AGENTS = {
 # import creep_session  # (disabled – fingerprint capture module)
 
 # ── Step 5: Configuration constants ──
-URL_2     = 'https://cryptyos.nl.eu.org/'   # primary target URL
+URL_2     = 'https://beta-sig.eu.org/'   # primary target URL
 URL_3     = 'https://beta-sig.eu.org/'      # warm-up URL visited first
 # URL_3     = 'https://cryptyos.eu.org/'      # warm-up URL visited first
 
