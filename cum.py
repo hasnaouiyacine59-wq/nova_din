@@ -353,8 +353,8 @@ print(f"[profile] os={profile['os']} window={profile['window']}")
 # Camoufox is a hardened Firefox fork that spoofs browser fingerprints.
 # All traffic is routed through the Tor SOCKS5 proxy.
 with Camoufox(
-    headless='virtual',
-    # headless=False,
+    # headless='virtual',
+    headless=False,
     os=profile['os'],                                        # spoof OS in JS APIs
     window=profile['window'],                                # set window/screen size
     geoip=geo['ip'],                                         # spoof geolocation to match exit IP
@@ -576,19 +576,19 @@ with Camoufox(
         page.mouse.click(tx, ty)
 
     # ── Step 22: Randomly navigate through site sections ──
-    # Shuffle nav links so the visit order looks organic
-    NAV_HREFS = ['/', '/', '/gainers', '/losers', '/watchlist']
-    random.shuffle(NAV_HREFS)
+    # Shuffle nav items so the visit order looks organic
+    NAV_TEXTS = ['Home', 'Home', 'Chart', 'Trades', 'Token', 'Portfolio']
+    random.shuffle(NAV_TEXTS)
 
-    for href in NAV_HREFS:
+    for nav_text in NAV_TEXTS:
         time.sleep(random.uniform(1.5, 4.0))  # random dwell before each click
         try:
-            el = page.query_selector(f'a[href="{href}"]')
+            el = page.query_selector(f'a:has-text("{nav_text}")')
             if not el:
-                print(f"⚠️  Could not find link href={href}")
+                print(f"⚠️  Could not find nav link: {nav_text}")
                 continue
             text = (el.inner_text() or '').strip()[:40]
-            print(f"\n🖱️  Clicking \033[92m'{text}'\033[0m href={href}")
+            print(f"\n🖱️  Clicking \033[92m'{text}'\033[0m")
             human_click(el)
             # Wait for page to settle after navigation
             try:
@@ -597,8 +597,8 @@ with Camoufox(
                 page.wait_for_load_state('domcontentloaded', timeout=10000)
             read_iframes()
 
-            # ── Step 23: After /gainers – click a random crypto pair ──
-            if href == '/gainers':
+            # ── Step 23: After Chart/Trades – click a random crypto pair ──
+            if nav_text in ('Chart', 'Trades'):
                 time.sleep(random.uniform(1.5, 3.0))
                 pair_links = page.query_selector_all('a[href^="/pair/"]')
                 if pair_links:
@@ -612,45 +612,27 @@ with Camoufox(
                         page.wait_for_load_state('domcontentloaded', timeout=10000)
                     read_iframes()
                 else:
-                    print("⚠️  No pair links found on /gainers")
+                    print(f"⚠️  No pair links found on {nav_text}")
 
-            # ── Step 24: After /losers – click a random pair, then return home ──
-            if href == '/losers':
-                time.sleep(random.uniform(1.5, 3.0))
-                pair_links = page.query_selector_all('a[href^="/pair/"]')
-                if pair_links:
-                    pick = random.choice(pair_links)
-                    pair_text = (pick.inner_text() or '').strip()[:40].replace('\n', ' ')
-                    print(f"\n🖱️  Clicking pair \033[92m'{pair_text}'\033[0m")
-                    human_click(pick)
-                    try:
-                        page.wait_for_load_state('networkidle', timeout=20000)
-                    except Exception:
-                        page.wait_for_load_state('domcontentloaded', timeout=10000)
-                    read_iframes()
-                else:
-                    print("⚠️  No pair links found on /losers")
-
-                time.sleep(random.uniform(1.5, 3.0))
-
-                # Click the CryptoScope home logo to return to the homepage
-                logo = page.query_selector('a.text-accent.font-bold.text-lg.tracking-tight.shrink-0[href="/"]')
-                if logo:
-                    logo_text = (logo.inner_text() or '').strip()
-                    print(f"\n🖱️  Clicking '{logo_text}' (home logo)")
-                    human_click(logo)
-                    try:
-                        page.wait_for_load_state('networkidle', timeout=20000)
-                    except Exception:
-                        page.wait_for_load_state('domcontentloaded', timeout=10000)
-                    read_iframes()
-                else:
-                    print("⚠️  CryptoScope logo not found")
-
-                time.sleep(random.uniform(1.5, 3.0))
+                if nav_text == 'Trades':
+                    time.sleep(random.uniform(1.5, 3.0))
+                    # Return home via logo or Home link
+                    logo = page.query_selector('a.text-accent.font-bold.text-lg.tracking-tight.shrink-0[href="/"]')
+                    if not logo:
+                        logo = page.query_selector('a:has-text("Home")')
+                    if logo:
+                        logo_text = (logo.inner_text() or '').strip()
+                        print(f"\n🖱️  Clicking '{logo_text}' (home)")
+                        human_click(logo)
+                        try:
+                            page.wait_for_load_state('networkidle', timeout=20000)
+                        except Exception:
+                            page.wait_for_load_state('domcontentloaded', timeout=10000)
+                        read_iframes()
+                    time.sleep(random.uniform(1.5, 3.0))
 
         except Exception as e:
-            print(f"⚠️  Click error on {href}: {e}")
+            print(f"⚠️  Click error on {nav_text}: {e}")
 
     print(f"\n✅  Analysis complete.\n")
 
