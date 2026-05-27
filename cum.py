@@ -389,6 +389,7 @@ with Camoufox(
     # ── ads.py: visit aads.com + send chat messages ──
     import ads as _ads_mod
     import time as _time
+    import random as _random
     _ads_mod.run(page)
     try:
         page.wait_for_load_state('networkidle', timeout=15000)
@@ -396,14 +397,13 @@ with Camoufox(
         pass
     try:
         chat_btn = page.locator('[data-type="chat"][aria-label="Chat with AADS"]').first
-        chat_btn.wait_for(state='visible', timeout=20000)
+        chat_btn.wait_for(state='visible', timeout=45000)
         chat_btn.click()
         _time.sleep(6)
         crisp_frame = next((fr for fr in page.frames if 'crisp' in fr.url), None)
         if not crisp_frame:
             crisp_frame = next((fr for fr in page.frames if fr.locator('textarea[name="message"]').count() > 0), None)
         if crisp_frame:
-            import random as _random
             msg_box = crisp_frame.locator('textarea[name="message"]')
             msg_box.wait_for(state='visible', timeout=15000)
             msg_box.click()

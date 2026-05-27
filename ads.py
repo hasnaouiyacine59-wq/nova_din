@@ -220,7 +220,7 @@ if __name__ == '__main__':
         # Click "Chat with AADS"
         try:
             chat_btn = page.locator('[data-type="chat"][aria-label="Chat with AADS"]').first
-            chat_btn.wait_for(state='visible', timeout=20000)
+            chat_btn.wait_for(state='visible', timeout=45000)
             chat_btn.click()
             print("[ads] Chat with AADS clicked")
             time.sleep(6)
