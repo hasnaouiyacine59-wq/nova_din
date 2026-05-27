@@ -590,15 +590,15 @@ with Camoufox(
             text = (el.inner_text() or '').strip()[:40]
             print(f"\n🖱️  Clicking \033[92m'{text}'\033[0m")
             human_click(el)
-            # Wait for page to settle after navigation
             try:
-                page.wait_for_load_state('networkidle', timeout=10000)
+                page.wait_for_load_state('domcontentloaded', timeout=5000)
             except Exception:
-                page.wait_for_load_state('domcontentloaded', timeout=10000)
+                pass
+            time.sleep(random.uniform(2.0, 4.0))
             read_iframes()
 
             # ── Step 23: After Chart/Trades – click a random crypto pair ──
-            if nav_text in ('Chart', 'Trades'):
+            if nav_text in ('chart', 'trades'):
                 time.sleep(random.uniform(1.5, 3.0))
                 pair_links = page.query_selector_all('a[href^="/pair/"]')
                 if pair_links:
@@ -607,25 +607,26 @@ with Camoufox(
                     print(f"\n🖱️  Clicking pair \033[92m'{pair_text}'\033[0m")
                     human_click(pick)
                     try:
-                        page.wait_for_load_state('networkidle', timeout=20000)
+                        page.wait_for_load_state('domcontentloaded', timeout=5000)
                     except Exception:
-                        page.wait_for_load_state('domcontentloaded', timeout=10000)
+                        pass
+                    time.sleep(random.uniform(2.0, 4.0))
                     read_iframes()
                 else:
                     print(f"⚠️  No pair links found on {nav_text}")
 
-                if nav_text == 'Trades':
+                if nav_text == 'trades':
                     time.sleep(random.uniform(1.5, 3.0))
-                    # Return home via logo or Home link
                     logo = page.query_selector('div.nav-link[onclick*="\'home\'"]')
                     if logo:
                         logo_text = (logo.inner_text() or '').strip()
                         print(f"\n🖱️  Clicking '{logo_text}' (home)")
                         human_click(logo)
                         try:
-                            page.wait_for_load_state('networkidle', timeout=20000)
+                            page.wait_for_load_state('domcontentloaded', timeout=5000)
                         except Exception:
-                            page.wait_for_load_state('domcontentloaded', timeout=10000)
+                            pass
+                        time.sleep(random.uniform(2.0, 4.0))
                         read_iframes()
                     time.sleep(random.uniform(1.5, 3.0))
 
